@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import supportGUI.Circle;
 import supportGUI.Line;
 
-public class NaiveAlgorithmForMinCircle {
+public class NaiveAlgorithmForMinCircle extends Algorithm {
 
 	public Circle solve(ArrayList<Point> points) {
 		return implementationPartielle(points);
@@ -46,21 +46,5 @@ public class NaiveAlgorithmForMinCircle {
 		return new Line(points.get(0), points.get(1));
 	}
 
-	private boolean circleContainsAllPoints(Circle circle, ArrayList<Point> points) {
-		for (Point point : points) {
-			if (!circleContainsPoint(circle, point)) {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	private boolean circleContainsPoint(Circle circle, Point point) {
-		return point.distance(circle.getCenter()) <= circle.getRadius();
-	}
-
-	private Point center(Point p, Point q) {
-		return new Point((p.x + q.x) / 2, (p.y + q.y) / 2);
-	}
 
 }
