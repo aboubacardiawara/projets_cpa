@@ -1,8 +1,14 @@
 package algorithms;
 
 import java.awt.Point;
+import java.security.AlgorithmConstraints;
+import java.security.AlgorithmParameters;
+import java.security.CryptoPrimitive;
+import java.security.Key;
 import java.util.ArrayList;
+import java.util.Set;
 
+import algorithms.mincircle.NaiveAlgorithmForMinCircle;
 /***************************************************************
  * TME 1: calcul de diamètre et de cercle couvrant minimum.    *
  *   - Trouver deux points les plus éloignés d'un ensemble de  *
@@ -27,37 +33,27 @@ import supportGUI.Line;
 
 public class DefaultTeam {
 
-  // calculDiametre: ArrayList<Point> --> Line
-  //   renvoie une paire de points de la liste, de distance maximum.
-  public Line calculDiametre(ArrayList<Point> points) {
-    if (points.size()<3) {
-      return null;
-    }
+	// calculDiametre: ArrayList<Point> --> Line
+	// renvoie une paire de points de la liste, de distance maximum.
+	public Line calculDiametre(ArrayList<Point> points) {
+		if (points.size() < 3) {
+			return null;
+		}
 
-    Point p=points.get(0);
-    Point q=points.get(1);
+		Point p = points.get(0);
+		Point q = points.get(1);
 
-    /*******************
-     * PARTIE A ECRIRE *
-     *******************/
+		/*******************
+		 * PARTIE A ECRIRE *
+		 *******************/
 
-    return new Line(p,q);
-  }
+		return new Line(p, q);
+	}
 
-  // calculCercleMin: ArrayList<Point> --> Circle
-  //   renvoie un cercle couvrant tout point de la liste, de rayon minimum.
-  public Circle calculCercleMin(ArrayList<Point> points) {
-    if (points.isEmpty()) {
-      return null;
-    }
-
-    Point center=points.get(0);
-    int radius=100;
-
-    /*******************
-     * PARTIE A ECRIRE *
-     *******************/
-
-    return new Circle(center,radius);
-  }
+	// calculCercleMin: ArrayList<Point> --> Circle
+	// renvoie un cercle couvrant tout point de la liste, de rayon minimum.
+	public Circle calculCercleMin(ArrayList<Point> points) {
+		System.out.println("hello world");
+		return new NaiveAlgorithmForMinCircle().solve(points);
+	}
 }
