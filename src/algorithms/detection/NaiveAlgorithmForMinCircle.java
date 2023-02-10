@@ -1,4 +1,4 @@
-package algorithms.mincircle;
+package algorithms.detection;
 
 import java.awt.Point;
 import java.util.ArrayList;

@@ -8,7 +8,7 @@ import java.security.Key;
 import java.util.ArrayList;
 import java.util.Set;
 
-import algorithms.mincircle.NaiveAlgorithmForMinCircle;
+import algorithms.detection.NaiveAlgorithmForMinCircle;
 /***************************************************************
  * TME 1: calcul de diamètre et de cercle couvrant minimum.    *
  *   - Trouver deux points les plus éloignés d'un ensemble de  *
