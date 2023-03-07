@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Set;
 
 import algorithms.detection.NaiveAlgorithmForMinCircle;
+import algorithms.detection.WelzlAlgorithmForMinCircle;
 /***************************************************************
  * TME 1: calcul de diamètre et de cercle couvrant minimum.    *
  *   - Trouver deux points les plus éloignés d'un ensemble de  *
@@ -53,6 +54,15 @@ public class DefaultTeam {
 	// calculCercleMin: ArrayList<Point> --> Circle
 	// renvoie un cercle couvrant tout point de la liste, de rayon minimum.
 	public Circle calculCercleMin(ArrayList<Point> points) {
-		return new NaiveAlgorithmForMinCircle().solve(points);
+		System.out.println(isEquilateral(points));
+		return new WelzlAlgorithmForMinCircle().solve(points);
+	}
+
+	private boolean isEquilateral(ArrayList<Point> points) {
+		Point p = points.get(0);
+		Point q = points.get(1);
+		Point r = points.get(2);
+
+		return p.distance(q) == p.distance(r) && p.distance(r) == q.distance(r);
 	}
 }

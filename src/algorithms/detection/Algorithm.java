@@ -4,6 +4,7 @@ import java.awt.Point;
 import java.util.ArrayList;
 
 import supportGUI.Circle;
+import supportGUI.Line;
 
 public abstract class Algorithm {
 
@@ -24,5 +25,34 @@ public abstract class Algorithm {
 
 	protected Point center(Point p, Point q) {
 		return new Point((p.x + q.x) / 2, (p.y + q.y) / 2);
+	}
+	
+	protected Line calculDiametre(ArrayList<Point> points) {
+		return calculDiametreNaif(points);
+	}
+	
+	private Line calculDiametreNaif(ArrayList<Point> points) {
+		if (points.size() < 3) {
+			return null;
+		}
+		Double distance_max = null;
+		Point pf = points.get(0);
+		Point qf = points.get(1);
+		
+		for (Point p : points) {
+			for (Point q : points) {
+				if (distance_max == null) {
+					distance_max = p.distance(q);
+				} else {
+					Double d = p.distance( q);
+					if (d > distance_max) {
+						distance_max = d;
+						pf = p;
+						qf = q;
+					}
+				}
+			}
+		}
+		return new Line(pf, qf);
 	}
 }

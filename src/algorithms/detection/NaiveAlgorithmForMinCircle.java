@@ -39,12 +39,7 @@ public class NaiveAlgorithmForMinCircle extends Algorithm {
 		return new Circle(center, radius);
 	}
 
-	private Line calculDiametre(ArrayList<Point> points) {
-		if (points.size() < 3) {
-			return null;
-		}
-		return new Line(points.get(0), points.get(1));
-	}
+	
 
 
 }
