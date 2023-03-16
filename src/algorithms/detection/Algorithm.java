@@ -31,7 +31,7 @@ public abstract class Algorithm {
 		return calculDiametreNaif(points);
 	}
 	
-	private Line calculDiametreNaif(ArrayList<Point> points) {
+	protected Line calculDiametreNaif(ArrayList<Point> points) {
 		if (points.size() < 3) {
 			return null;
 		}

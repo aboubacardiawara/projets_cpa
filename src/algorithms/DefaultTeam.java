@@ -54,8 +54,8 @@ public class DefaultTeam {
 	// calculCercleMin: ArrayList<Point> --> Circle
 	// renvoie un cercle couvrant tout point de la liste, de rayon minimum.
 	public Circle calculCercleMin(ArrayList<Point> points) {
-		System.out.println(isEquilateral(points));
 		return new WelzlAlgorithmForMinCircle().solve(points);
+		// return new NaiveAlgorithmForMinCircle().solve(points);
 	}
 
 	private boolean isEquilateral(ArrayList<Point> points) {
