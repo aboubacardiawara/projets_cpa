@@ -27,19 +27,22 @@ public class NaiveAlgorithmForMinCircle extends Algorithm {
 
 		for (Point p : points) {
 			for (Point q : points) {
-				center = center(p, q);
-				radius = (int) p.distance(q);
-				Circle circle = new Circle(center, radius);
-				if (circleContainsAllPoints(circle, points)) {
-					return circle;
+				if (!p.equals(q)) {
+
+					//System.out.println("iteration ...");
+					center = center(p, q);
+					radius = (int) p.distance(q);
+					Circle circle = new Circle(center, radius);
+					if (circleContainsAllPoints(circle, points)) {
+						return circle;
+					}
 				}
 			}
 		}
-
-		return new Circle(center, radius);
+		
+		Circle c =  new Circle(center, radius);
+		System.out.println(c.getRadius() + " centre: " + c.getCenter());
+		return c;
 	}
-
-	
-
 
 }

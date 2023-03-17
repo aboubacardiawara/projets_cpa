@@ -2,6 +2,7 @@ package algorithms.detection;
 
 import java.awt.Point;
 import java.util.ArrayList;
+import java.util.Random;
 
 import supportGUI.Circle;
 
@@ -16,9 +17,8 @@ public class WelzlAlgorithmForMinCircle extends Algorithm {
 			return null;
 		}
 		ArrayList<Point> points = new ArrayList<>(inputPoints);
-		Circle c = welzlAlgoRec(points, new ArrayList<>());
+		Circle c = welzlAlgoRec(points, new ArrayList<Point>());
 		assertionCheck(c != null, "cercle cannot be null");
-		System.out.println("cercle: (" + c.getCenter() + ",  " + c.getRadius() + ")");
 		return c;
 	}
 
@@ -40,33 +40,16 @@ public class WelzlAlgorithmForMinCircle extends Algorithm {
 			return trivial(R);
 		}
 
+		Random randomGenerator = new Random();
+		//Point p = points.remove(randomGenerator.nextInt(0, points.size()));
 		Point p = points.remove(0);
 		Circle D = welzlAlgoRec(points, R);
 		if (circleContainsPoint(D, p)) {
-			return D;
+			return D; 
 		}
 
 		R.add(p);
 		return welzlAlgoRec(points, R);
-	}
-
-	/**
-	 * Version iterative de l'algo de welzl.
-	 * 
-	 * @param inputPoints
-	 * @return
-	 */
-	@SuppressWarnings({ "unchecked", "unused" })
-	private Circle welzlAlgoIter(ArrayList<Point> inputPoints) {
-		ArrayList<Point> points = (ArrayList<Point>) inputPoints.clone();
-		ArrayList<Point> R = new ArrayList<Point>();
-		Circle D = null;
-
-		while (!points.isEmpty()) {
-			// to define
-		}
-
-		return D;
 	}
 
 	/**
@@ -79,7 +62,7 @@ public class WelzlAlgorithmForMinCircle extends Algorithm {
 		if (r.size() == 3) { // |R|=3
 			return cercleCirconscrit(r);
 		} else if (r.size() == 2) { // |R|=3
-			int rayon = (int) r.get(0).distance(r.get(1))/2;
+			int rayon = (int) r.get(0).distance(r.get(1)) / 2;
 			Point centre = center(r.get(0), r.get(1));
 			return new Circle(centre, rayon);
 		} else if (r.size() == 1) { // |R|=3
@@ -101,18 +84,24 @@ public class WelzlAlgorithmForMinCircle extends Algorithm {
 	 * @param r
 	 * @return
 	 */
-	private static Circle cercleCirconscrit(ArrayList<Point> points) {
+	public Circle cercleCirconscrit(ArrayList<Point> points) {
 		Point p, q, r;
 
 		p = points.get(0);
 		q = points.get(1);
 		r = points.get(2);
 		// equation des droites des médiatrices [pq] et [pr]
+		// y = a1x + b1
+		// y = a2x + b2
+		// 0 = (a1-a2) xm + b1 - b2 => xm = - (b1 -b2) / (a1-a2) 
 		double a1, b1, a2, b2;
 		double m1X, m1Y, m2X, m2Y;
 		double x, y;
+		
+		// milieux
 		m1X = (q.getX() + p.getX()) / 2.0;
 		m1Y = (q.getY() + p.getY()) / 2.0;
+		
 		a1 = -((q.getX() - p.getX()) / (q.getY() - p.getY()));
 		b1 = m1Y - a1 * m1X;
 
@@ -127,7 +116,7 @@ public class WelzlAlgorithmForMinCircle extends Algorithm {
 
 		Point centre = new Point((int) x, (int) y);
 
-		return new Circle(centre, ((int) p.distance(centre)) + 1);
+		return new Circle(centre, ((int) p.distance(centre))+1);
 	}
 
 }
