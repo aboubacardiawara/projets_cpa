@@ -23,6 +23,8 @@ import java.sql.Date;
 import java.sql.Time;
 import java.util.ArrayList;
 
+import javax.swing.plaf.basic.BasicScrollPaneUI.VSBChangeListener;
+
 import algorithms.detection.Utile;
 import algorithms.detection.WelzlAlgorithmForMinCircle;
 import supportGUI.Circle;
@@ -59,17 +61,17 @@ public class Experimentation {
 		try {
 			ArrayList<Point> points = toPoint(file);
 
-			long t10 = System.currentTimeMillis();
+			long t10 = System.nanoTime();
 			Circle circleFromNaiveImpl = new Utile().solve(points);
-			long t11 = System.currentTimeMillis();
+			long t11 = System.nanoTime();
 
-			long t20 = System.currentTimeMillis();
+			long t20 = System.nanoTime();
 			Circle circleFromWelzlImpl = new WelzlAlgorithmForMinCircle().solve(points);
-			long t21 = System.currentTimeMillis();
+			long t21 = System.nanoTime();
 
 			long duration1 = (t11 - t10);
 			long duration2 = (t21 - t20);
-			System.out.println(duration1);
+			System.out.println(duration1 + " vs " + duration2);
 
 			// comparaison
 			Point c1 = circleFromNaiveImpl.getCenter();
