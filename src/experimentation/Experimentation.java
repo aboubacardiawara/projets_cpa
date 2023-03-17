@@ -19,6 +19,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.rmi.server.ExportException;
+import java.sql.Date;
 import java.sql.Time;
 import java.util.ArrayList;
 
@@ -34,11 +35,15 @@ public class Experimentation {
 	int counter = 0;
 
 	private void run() {
-		clearResultFiles();
+		//clearResultFiles();
 		
 		ArrayList<File> testCases = loadTestFiles();
+		int i = 0;
 		for (File file : testCases) {
+			if (i%100 == 0)
+				System.out.println(i + "/" + testCases.size());
 			testCase(file); // new result
+			i++;
 		}
 	
 	}
@@ -62,8 +67,9 @@ public class Experimentation {
 			Circle circleFromWelzlImpl = new WelzlAlgorithmForMinCircle().solve(points);
 			long t21 = System.currentTimeMillis();
 
-			displayCircle(circleFromNaiveImpl);
-			displayCircle(circleFromWelzlImpl);
+			long duration1 = (t11 - t10);
+			long duration2 = (t21 - t20);
+			System.out.println(duration1);
 
 			// comparaison
 			Point c1 = circleFromNaiveImpl.getCenter();
@@ -73,14 +79,15 @@ public class Experimentation {
 
 			// export data
 			// write in file
+			/*
 			FileWriter fileWriter = new FileWriter(RESULTS_PATH, true);			
 			BufferedWriter writer = new BufferedWriter (fileWriter);
-			writer.write(">>>>>>");
+			writer.write(points.size() + " " + duration1 + " " + duration2);
 			writer.newLine();
 			
-			writer.close();
 			
-			System.out.println("duration: " + (t11 - t10));
+			writer.close();
+			*/
 
 			return c1.equals(c2) && r1 == r2;
 
@@ -100,7 +107,6 @@ public class Experimentation {
 		FileReader fileReader = new FileReader(file);
 		BufferedReader reader = new BufferedReader(fileReader);
 		String line = reader.readLine();
-		System.out.println(line);
 		ArrayList<Point> res = new ArrayList<>();
 		while (line != null) {
 			// lecture de la prochaine ligne
