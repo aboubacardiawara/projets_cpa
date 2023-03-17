@@ -18,6 +18,8 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -28,17 +30,62 @@ import supportGUI.Circle;
 public class Experimentation {
 	private Executor executor = Executors.newFixedThreadPool(1664);
 	private ComparaisonResult[] comparaisons = new ComparaisonResult[1663];
+	private ComparaisonResult[] comparaisonsUnFichier = new ComparaisonResult[256];
 
 	public static int NOMBRE_MAGIQUE = 1664;
 	public static String SAMPLES_PATH = "./experimentation/samples/test-";
 	public static String RESULTS_PATH = "./experimentation/resultats/duration.data";
+	public static String RESULTS_CROISS_PATH = "./experimentation/resultats/durationCrois.data";
 	int counter = 0;
+
+	public void paralleleRunUnFichier() throws IOException {
+		System.out.println("un seul fichier");
+		clearResult2();
+		File resultFile = new File(RESULTS_CROISS_PATH);
+		File testFile = new File(SAMPLES_PATH + "2.points");
+		// charger points
+		ArrayList<Point> points = toPoint(testFile);
+		// pour chaque i allant de 1 à 256
+		FileWriter fileWriter = new FileWriter(resultFile, true);
+		BufferedWriter writer = new BufferedWriter(fileWriter);
+		for (int nbPoints = 1; nbPoints <= 256; nbPoints++) {
+			// collecte
+			ArrayList<Point> collectedPoints = new ArrayList<Point>(points.subList(0, nbPoints));
+			ComparaisonResult r = runAlgos(collectedPoints);
+			writer.write(r.getPointsCount() + " " + r.getNaiveDuration() + " " + r.getWelzlDuration());
+			writer.newLine();
+		}
+		System.out.println("un seul fichier terminer");
+		writer.close();
+	}
+
+	private ComparaisonResult runAlgos(ArrayList<Point> points) {
+		long t10 = System.nanoTime();
+		Circle circleFromNaiveImpl = new Utile().solve(points);
+		long t11 = System.nanoTime();
+
+		long t20 = System.nanoTime();
+		Circle circleFromWelzlImpl = new WelzlAlgorithmForMinCircle().solve(points);
+		long t21 = System.nanoTime();
+
+		long duration1 = (t11 - t10);
+		long duration2 = (t21 - t20);
+
+		ComparaisonResult result = new ComparaisonResult(points.size(), duration1, duration2, circleFromNaiveImpl,
+				circleFromWelzlImpl);
+		return result;
+	}
+
+	private void clearResult2() {
+		File resultFile = new File(RESULTS_CROISS_PATH);
+		resultFile.delete();
+	}
 
 	public void paralelleRun() throws IOException, InterruptedException {
 		System.out.println("debut experience");
 		clearResultFiles();
 		File[] testCases = paralelleLoadTestFiles();
-		Thread.sleep(5_000);
+		Thread.sleep(2_000);
 		for (int i = 0; i < testCases.length; i++) {
 
 		}
@@ -94,20 +141,7 @@ public class Experimentation {
 		try {
 			ArrayList<Point> points = toPoint(file);
 
-			long t10 = System.nanoTime();
-			Circle circleFromNaiveImpl = new Utile().solve(points);
-			long t11 = System.nanoTime();
-
-			long t20 = System.nanoTime();
-			Circle circleFromWelzlImpl = new WelzlAlgorithmForMinCircle().solve(points);
-			long t21 = System.nanoTime();
-
-			long duration1 = (t11 - t10);
-			long duration2 = (t21 - t20);
-
-			ComparaisonResult result = new ComparaisonResult(points.size(), duration1, duration2, circleFromNaiveImpl,
-					circleFromWelzlImpl);
-
+			ComparaisonResult result = runAlgos(points);
 			return result;
 
 		} catch (Exception e) {
@@ -218,8 +252,10 @@ public class Experimentation {
 		Experimentation exp = new Experimentation();
 		try {
 			exp.paralelleRun();
-		} catch (IOException | InterruptedException e) {
-			// TODO Auto-generated catch block
+			exp.paralleleRunUnFichier();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 
