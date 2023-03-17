@@ -18,7 +18,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -36,10 +35,10 @@ public class Experimentation {
 	int counter = 0;
 
 	public void paralelleRun() throws IOException, InterruptedException {
-		System.out.println("debut");
+		System.out.println("debut experience");
 		clearResultFiles();
 		File[] testCases = paralelleLoadTestFiles();
-		Thread.sleep(5000);
+		Thread.sleep(5_000);
 		for (int i = 0; i < testCases.length; i++) {
 
 		}
@@ -51,24 +50,23 @@ public class Experimentation {
 			});
 		}
 
-		Thread.sleep(60000); // attendre la fin du calcul
+		Thread.sleep(60_000); // attendre la fin du calcul
 		System.out.println("fin calcul");
 
 		// write in file
 		FileWriter fileWriter = new FileWriter(RESULTS_PATH, true);
 		BufferedWriter writer = new BufferedWriter(fileWriter);
-		int cpt = 0;
 		for (int i = 0; i < testCases.length; i++) {
 			ComparaisonResult r = comparaisons[i];
-			if (r == null) {
-				cpt++;
-			} else {
-				writer.write(r.getNaiveDuration() + " " + r.getWelzlDuration());
-				writer.newLine();
-			}
+			if (r == null)
+				throw new AssertionError("comparaison result is not null: wait more time");
+
+			writer.write(r.getNaiveDuration() + " " + r.getWelzlDuration());
+			writer.newLine();
+
 		}
 		writer.close();
-		System.out.println("fin d'ecriture [" + cpt + "]");
+		System.out.println("fin experience");
 
 	}
 
@@ -107,14 +105,8 @@ public class Experimentation {
 			long duration1 = (t11 - t10);
 			long duration2 = (t21 - t20);
 
-			// comparaison
-			Point c1 = circleFromNaiveImpl.getCenter();
-			Point c2 = circleFromWelzlImpl.getCenter();
-			int r1 = circleFromNaiveImpl.getRadius();
-			int r2 = circleFromWelzlImpl.getRadius();
-
-			boolean b = c1.equals(c2) && r1 == r2;
-			ComparaisonResult result = new ComparaisonResult(points.size(), duration1, duration2);
+			ComparaisonResult result = new ComparaisonResult(points.size(), duration1, duration2, circleFromNaiveImpl,
+					circleFromWelzlImpl);
 
 			return result;
 
@@ -238,12 +230,25 @@ class ComparaisonResult {
 	private int pointsCount;
 	private long naiveDuration;
 	private long welzlDuration;
+	private Circle naiveCircle;
+	private Circle wlzlCircle;
 
-	public ComparaisonResult(int pointsCount, long naiveDuration, long welzlDuration) {
+	public ComparaisonResult(int pointsCount, long naiveDuration, long welzlDuration, Circle naiveCircle,
+			Circle wlzlCircle) {
 		super();
 		this.pointsCount = pointsCount;
 		this.naiveDuration = naiveDuration;
 		this.welzlDuration = welzlDuration;
+		this.naiveCircle = naiveCircle;
+		this.wlzlCircle = wlzlCircle;
+	}
+
+	public Circle getNaiveCircle() {
+		return naiveCircle;
+	}
+
+	public Circle getWlzlCircle() {
+		return wlzlCircle;
 	}
 
 	public int getPointsCount() {
