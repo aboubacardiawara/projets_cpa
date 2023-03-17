@@ -17,43 +17,128 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.Writer;
-import java.rmi.server.ExportException;
-import java.sql.Date;
-import java.sql.Time;
 import java.util.ArrayList;
-
-import javax.swing.plaf.basic.BasicScrollPaneUI.VSBChangeListener;
+import java.util.Arrays;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import algorithms.detection.Utile;
 import algorithms.detection.WelzlAlgorithmForMinCircle;
 import supportGUI.Circle;
 
 public class Experimentation {
+	private Executor executor = Executors.newFixedThreadPool(1664);
+	private ComparaisonResult[] comparaisons = new ComparaisonResult[1663];
 
 	public static int NOMBRE_MAGIQUE = 1664;
 	public static String SAMPLES_PATH = "./experimentation/samples/test-";
-	public static String RESULTS_PATH= "./experimentation/resultats/duration.data";
+	public static String RESULTS_PATH = "./experimentation/resultats/duration.data";
 	int counter = 0;
 
-	private void run() {
-		//clearResultFiles();
-		
+	public void paralelleRun() throws IOException, InterruptedException {
+		System.out.println("debut");
+		clearResultFiles();
+		File[] testCases = paralelleLoadTestFiles();
+		Thread.sleep(5000);
+		for (int i = 0; i < testCases.length; i++) {
+
+		}
+		System.out.println("fin lecture fichiers");
+		for (int i = 0; i < testCases.length; i++) {
+			final int j = i;
+			executor.execute(() -> {
+				comparaisons[j] = testCaseBis(testCases[j]);
+			});
+		}
+
+		Thread.sleep(60000); // attendre la fin du calcul
+		System.out.println("fin calcul");
+
+		// write in file
+		FileWriter fileWriter = new FileWriter(RESULTS_PATH, true);
+		BufferedWriter writer = new BufferedWriter(fileWriter);
+		int cpt = 0;
+		for (int i = 0; i < testCases.length; i++) {
+			ComparaisonResult r = comparaisons[i];
+			if (r == null) {
+				cpt++;
+			} else {
+				writer.write(r.getNaiveDuration() + " " + r.getWelzlDuration());
+				writer.newLine();
+			}
+		}
+		writer.close();
+		System.out.println("fin d'ecriture [" + cpt + "]");
+
+	}
+
+	private File[] paralelleLoadTestFiles() {
+		File[] testFiles = new File[1663]; // 0, 1662
+
+		for (Integer i = 2; i <= NOMBRE_MAGIQUE; i++) {
+			final int j = i;
+
+			executor.execute(() -> {
+				String path = SAMPLES_PATH + j + ".points";
+				File file = new File(path);
+				testFiles[j - 2] = file;
+			});
+
+		}
+
+		return testFiles;
+	}
+
+	private ComparaisonResult testCaseBis(File file) {
+		if (file == null)
+			throw new AssertionError("fichier null");
+		FileReader fileReader;
+		try {
+			ArrayList<Point> points = toPoint(file);
+
+			long t10 = System.nanoTime();
+			Circle circleFromNaiveImpl = new Utile().solve(points);
+			long t11 = System.nanoTime();
+
+			long t20 = System.nanoTime();
+			Circle circleFromWelzlImpl = new WelzlAlgorithmForMinCircle().solve(points);
+			long t21 = System.nanoTime();
+
+			long duration1 = (t11 - t10);
+			long duration2 = (t21 - t20);
+
+			// comparaison
+			Point c1 = circleFromNaiveImpl.getCenter();
+			Point c2 = circleFromWelzlImpl.getCenter();
+			int r1 = circleFromNaiveImpl.getRadius();
+			int r2 = circleFromWelzlImpl.getRadius();
+
+			boolean b = c1.equals(c2) && r1 == r2;
+			ComparaisonResult result = new ComparaisonResult(points.size(), duration1, duration2);
+
+			return result;
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return null;
+	}
+
+	public void run() {
+		// clearResultFiles();
 		ArrayList<File> testCases = loadTestFiles();
 		int i = 0;
 		for (File file : testCases) {
-			if (i%100 == 0)
-				System.out.println(i + "/" + testCases.size());
 			testCase(file); // new result
-			i++;
 		}
-	
+
 	}
-	
+
 	private void clearResultFiles() {
 		File resultFile = new File(RESULTS_PATH);
 		resultFile.delete();
-		
+
 	}
 
 	private Boolean testCase(File file) {
@@ -82,14 +167,13 @@ public class Experimentation {
 			// export data
 			// write in file
 			/*
-			FileWriter fileWriter = new FileWriter(RESULTS_PATH, true);			
-			BufferedWriter writer = new BufferedWriter (fileWriter);
-			writer.write(points.size() + " " + duration1 + " " + duration2);
-			writer.newLine();
-			
-			
-			writer.close();
-			*/
+			 * FileWriter fileWriter = new FileWriter(RESULTS_PATH, true); BufferedWriter
+			 * writer = new BufferedWriter (fileWriter); writer.write(points.size() + " " +
+			 * duration1 + " " + duration2); writer.newLine();
+			 * 
+			 * 
+			 * writer.close();
+			 */
 
 			return c1.equals(c2) && r1 == r2;
 
@@ -102,7 +186,7 @@ public class Experimentation {
 	}
 
 	private void displayCircle(Circle c) {
-		//System.out.println("(" + c.getCenter() + ", " + c.getRadius() + ")");
+		// System.out.println("(" + c.getCenter() + ", " + c.getRadius() + ")");
 	}
 
 	private ArrayList<Point> toPoint(File file) throws IOException {
@@ -140,7 +224,38 @@ public class Experimentation {
 	public static void main(String[] args) {
 
 		Experimentation exp = new Experimentation();
-		exp.run();
+		try {
+			exp.paralelleRun();
+		} catch (IOException | InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 	}
+}
+
+class ComparaisonResult {
+	private int pointsCount;
+	private long naiveDuration;
+	private long welzlDuration;
+
+	public ComparaisonResult(int pointsCount, long naiveDuration, long welzlDuration) {
+		super();
+		this.pointsCount = pointsCount;
+		this.naiveDuration = naiveDuration;
+		this.welzlDuration = welzlDuration;
+	}
+
+	public int getPointsCount() {
+		return pointsCount;
+	}
+
+	public long getNaiveDuration() {
+		return naiveDuration;
+	}
+
+	public long getWelzlDuration() {
+		return welzlDuration;
+	}
+
 }
