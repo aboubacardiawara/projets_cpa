@@ -82,7 +82,7 @@ public class Utile {
 							break;
 						}
 					if (allHit) {
-						System.out.println("Found r=" + Math.sqrt(cRadiusSquared));
+						//System.out.println("Found r=" + Math.sqrt(cRadiusSquared));
 						resX = cX;
 						resY = cY;
 						resRadiusSquared = cRadiusSquared;

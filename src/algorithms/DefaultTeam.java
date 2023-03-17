@@ -8,6 +8,8 @@ import java.security.Key;
 import java.util.ArrayList;
 import java.util.Set;
 
+import algorithms.detection.Camille;
+import algorithms.detection.Lyna;
 import algorithms.detection.NaiveAlgorithmForMinCircle;
 import algorithms.detection.Utile;
 import algorithms.detection.WelzlAlgorithmForMinCircle;
@@ -57,8 +59,10 @@ public class DefaultTeam {
 	public Circle calculCercleMin(ArrayList<Point> points) {
 		//return new NaiveAlgorithmForMinCircle().solve(points);
 		//return new WelzlAlgorithmForMinCircle().solve(points);
-		return new WelzlAlgorithmForMinCircle().cercleCirconscrit(points);
+		//return new WelzlAlgorithmForMinCircle().cercleCirconscrit(points);
+		//return new Lyna().calculCercleMin(points);
 		//return new Utile().solve(points);
+		return new Camille().calculCercleMin(points);
 	}
 
 	private boolean isEquilateral(ArrayList<Point> points) {
