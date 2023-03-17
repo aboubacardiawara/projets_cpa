@@ -1,16 +1,27 @@
+/**
+ 
+ - Duration Test:
+ 	pointsCount duration1 duration2
+ 
+ - Correction
+ 	remarques: quantifier ??
+ 	
+ */
+
 package experimentation;
 
 import java.awt.Point;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
+import java.rmi.server.ExportException;
+import java.sql.Time;
 import java.util.ArrayList;
-import java.util.Iterator;
 
-import algorithms.detection.Camille;
-import algorithms.detection.Lyna;
 import algorithms.detection.Utile;
 import algorithms.detection.WelzlAlgorithmForMinCircle;
 import supportGUI.Circle;
@@ -18,85 +29,38 @@ import supportGUI.Circle;
 public class Experimentation {
 
 	public static int NOMBRE_MAGIQUE = 1664;
+	public static String SAMPLES_PATH = "./experimentation/samples/test-";
+	public static String RESULTS_PATH= "./experimentation/resultats/duration.data";
+	int counter = 0;
 
-	/**
-	 * correction
-	 * 
-	 * @param file
-	 */
-	private Boolean testCaseLyna(File file) {
-		FileReader fileReader;
-		try {
-			fileReader = new FileReader(file);
-			BufferedReader reader = new BufferedReader(fileReader);
-			ArrayList<Point> points = toPoint(file);
-
-			Circle circleFromNaiveImpl = new Utile().solve(points);
-			//Circle circleFromWelzlImpl = new WelzlAlgorithmForMinCircle().solve(points);
-			Circle circleFromWelzlImpl = new Lyna().calculCercleMin(points);
-
-
-			displayCircle(circleFromNaiveImpl);
-			displayCircle(circleFromWelzlImpl);
-
-			// comparaison
-			Point c1 = circleFromNaiveImpl.getCenter();
-			Point c2 = circleFromWelzlImpl.getCenter();
-			int r1 = circleFromNaiveImpl.getRadius();
-			int r2 = circleFromWelzlImpl.getRadius();
-
-			return c1.equals(c2) && r1 == r2;
-
-		} catch (Exception e) {
-			e.printStackTrace();
+	private void run() {
+		clearResultFiles();
+		
+		ArrayList<File> testCases = loadTestFiles();
+		for (File file : testCases) {
+			testCase(file); // new result
 		}
-
-		return null;
-
+	
 	}
 	
-	private Boolean testCaseCamille(File file) {
-		FileReader fileReader;
-		try {
-			fileReader = new FileReader(file);
-			BufferedReader reader = new BufferedReader(fileReader);
-			ArrayList<Point> points = toPoint(file);
-
-			Circle circleFromNaiveImpl = new Utile().solve(points);
-			//Circle circleFromWelzlImpl = new WelzlAlgorithmForMinCircle().solve(points);
-			Circle circleFromWelzlImpl = new Camille().calculCercleMin(points);
-
-
-			displayCircle(circleFromNaiveImpl);
-			displayCircle(circleFromWelzlImpl);
-
-			// comparaison
-			Point c1 = circleFromNaiveImpl.getCenter();
-			Point c2 = circleFromWelzlImpl.getCenter();
-			int r1 = circleFromNaiveImpl.getRadius();
-			int r2 = circleFromWelzlImpl.getRadius();
-
-			return c1.equals(c2) && r1 == r2;
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		return null;
-
+	private void clearResultFiles() {
+		File resultFile = new File(RESULTS_PATH);
+		resultFile.delete();
+		
 	}
 
 	private Boolean testCase(File file) {
 		FileReader fileReader;
 		try {
-			fileReader = new FileReader(file);
-			BufferedReader reader = new BufferedReader(fileReader);
 			ArrayList<Point> points = toPoint(file);
 
+			long t10 = System.currentTimeMillis();
 			Circle circleFromNaiveImpl = new Utile().solve(points);
-			Circle circleFromWelzlImpl = new WelzlAlgorithmForMinCircle().solve(points);
-			//Circle circleFromWelzlImpl = new Lyna().calculCercleMin(points);
+			long t11 = System.currentTimeMillis();
 
+			long t20 = System.currentTimeMillis();
+			Circle circleFromWelzlImpl = new WelzlAlgorithmForMinCircle().solve(points);
+			long t21 = System.currentTimeMillis();
 
 			displayCircle(circleFromNaiveImpl);
 			displayCircle(circleFromWelzlImpl);
@@ -107,6 +71,17 @@ public class Experimentation {
 			int r1 = circleFromNaiveImpl.getRadius();
 			int r2 = circleFromWelzlImpl.getRadius();
 
+			// export data
+			// write in file
+			FileWriter fileWriter = new FileWriter(RESULTS_PATH, true);			
+			BufferedWriter writer = new BufferedWriter (fileWriter);
+			writer.write(">>>>>>");
+			writer.newLine();
+			
+			writer.close();
+			
+			System.out.println("duration: " + (t11 - t10));
+
 			return c1.equals(c2) && r1 == r2;
 
 		} catch (Exception e) {
@@ -116,8 +91,9 @@ public class Experimentation {
 		return null;
 
 	}
+
 	private void displayCircle(Circle c) {
-		System.out.println("(" + c.getCenter() + ", " + c.getRadius() + ")");
+		//System.out.println("(" + c.getCenter() + ", " + c.getRadius() + ")");
 	}
 
 	private ArrayList<Point> toPoint(File file) throws IOException {
@@ -141,7 +117,7 @@ public class Experimentation {
 	public ArrayList<File> loadTestFiles() {
 		ArrayList<File> testFiles = new ArrayList<>();
 		for (Integer i = 2; i <= NOMBRE_MAGIQUE; i++) {
-			String path = "./samples/test-" + i.toString() + ".points";
+			String path = SAMPLES_PATH + i.toString() + ".points";
 			File file = new File(path);
 			testFiles.add(file);
 		}
@@ -149,31 +125,14 @@ public class Experimentation {
 		return testFiles;
 	}
 
+	/**
+	 * 
+	 * @param args
+	 */
 	public static void main(String[] args) {
 
-		// correction (par rapport au naif) (c1 c2 identiques ? (centres, rayons))
-		// le temps d'execution des deux (nombre_points temp1 temp2)
 		Experimentation exp = new Experimentation();
-		ArrayList<File> testCases = exp.loadTestFiles();
-		int n = 300;
-		/*
-		exp.testCase(testCases.get(n));
-		exp.testCaseLyna(testCases.get(n));
-		exp.testCaseCamille(testCases.get(n));
-		*/
-		
-		//Boolean b = testCases.stream().allMatch(o -> exp.testCase(o));
-		//System.out.println(b);
+		exp.run();
 
-		
-		for (int i = 0; i < testCases.size(); i++) {
-			boolean res = exp.testCase(testCases.get(i));
-			if (!res) {
-				System.out.println((i+2) + ") " + res);	
-
-			}
-
-		}
-	
 	}
 }
