@@ -23,8 +23,8 @@ public class WelzlAlgorithmForMinCircle extends Algorithm {
 	}
 
 	/**
-	 * Version recursive de l'algo de welzl.
-	 * ! Stack overflow sur une grande entrée 
+	 * Version recursive de l'algo de welzl. ! Stack overflow sur une grande entrée
+	 * 
 	 * @param inputPoints
 	 * @param inputR
 	 * @return
@@ -52,6 +52,7 @@ public class WelzlAlgorithmForMinCircle extends Algorithm {
 
 	/**
 	 * Version iterative de l'algo de welzl.
+	 * 
 	 * @param inputPoints
 	 * @return
 	 */
@@ -75,8 +76,14 @@ public class WelzlAlgorithmForMinCircle extends Algorithm {
 	 * @return
 	 */
 	private Circle trivial(ArrayList<Point> r) {
-		if (r.size() == 3) { // |R|=3 case
+		if (r.size() == 3) { // |R|=3
 			return cercleCirconscrit(r);
+		} else if (r.size() == 2) { // |R|=3
+			int rayon = (int) r.get(0).distance(r.get(1))/2;
+			Point centre = center(r.get(0), r.get(1));
+			return new Circle(centre, rayon);
+		} else if (r.size() == 1) { // |R|=3
+			return new Circle(r.get(0), 0);
 		} else { // points.isEmpty()
 			return new Circle(new Point(), 0);
 		}
